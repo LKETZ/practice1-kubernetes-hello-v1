@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-hello-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: node-hello
+  template:
+    metadata:
+      labels:
+        app: node-hello
+    spec:
+      containers:
+        - name: node-hello-container
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          # --- ADD THIS SECTION ---
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "250m" # 250 milli-cpus (1/4 of a core)
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "500m" # 500 milli-cpus (1/2 of a core)
+          env:
+          - name: APP_MESSAGE
+            valueFrom:
+              configMapKeyRef:
+                name: node-hello-config
+                key: APP_MESSAGE
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: node-hello-secret
+                key: API_KEY

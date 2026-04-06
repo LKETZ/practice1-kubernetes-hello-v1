@@ -1,0 +1,12 @@
+replicaCount: 5
+image:
+  repository: node-hello
+  tag: v3
+service:
+  type: NodePort
+  port: 80
+ingress:
+  enabled: true
+  host: hello-world.local
+htttpRoute:
+  enabled: false
