@@ -1,7 +1,7 @@
-replicaCount: 5
+replicaCount: 2
 image:
   repository: node-hello
-  tag: v3
+  tag: v5
 service:
   type: NodePort
   port: 80
@@ -10,3 +10,7 @@ ingress:
   host: hello-world.local
 htttpRoute:
   enabled: false
+mongodb:
+  service: mongodb-service
+  port: 27017
+  database: myapp

@@ -15,25 +15,38 @@ spec:
       containers:
         - name: node-hello-container
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
-          # --- ADD THIS SECTION ---
-          # resources:
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m" # 250 milli-cpus (1/4 of a core)
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m" # 500 milli-cpus (1/2 of a core)
           env:
-          - name: APP_MESSAGE
-            valueFrom:
-              configMapKeyRef:
-                name: node-hello-config
-                key: APP_MESSAGE
-          - name: API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: node-hello-secret
-                key: API_KEY
+            - name: MONGO_URI
+              value: "mongodb://admin:password123@{{ .Values.mongodb.service }}:{{ .Values.mongodb.port }}/{{ .Values.mongodb.database }}?authSource=admin"
+            - name: APP_MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: node-hello-config
+                  key: APP_MESSAGE
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: node-hello-secret
+                  key: API_KEY
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
